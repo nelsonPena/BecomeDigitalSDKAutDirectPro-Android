@@ -72,7 +72,7 @@ Cómo primera medida es necesaria la implementacion de los siguientes módulos y
  1. Descargue la dependencias `becomedigitalsdk.aar , capture-core-1.2.0.aar, capture-ux-1.2.0.aar` y agréguela en las dependencias binarias locales de su proyecto.
 
 <p align="center">
-  <img src="https://github.com/Becomedigital/become_Android_SDK_Document_Autentication/blob/main/libs.png">
+  <img src="https://github.com/Becomedigital/BecomeDigitalSDKAutDirectPro-Android/blob/main/libs.png">
 </p>
 		 
  2. Al realizar los pasos anteriores, debe sincronizar su proyecto con gradle.
