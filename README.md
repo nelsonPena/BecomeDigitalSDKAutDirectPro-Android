@@ -1,233 +1,203 @@
-# Documentación de Become Android SDK
-Este es un espacio para conocer a cerca del SDK Android de Become para la validación de identidad.
+# Documentación del SDK de Become Android
+
+Esta documentación proporciona información sobre el SDK de Become para Android, utilizado en la validación de identidad.
+
 <p align="center">
   <img src="https://github.com/Becomedigital/become_ANDROID_SDK/blob/master/Pantalla_Android.png" width="284" height="572">
 </p>
 
-## Configuraciones de Gradle
+## 1. Configuración de Gradle
 
- 1. Dentro del archivo build.gradle debe agregar las siguientes modificaciones:
+En el archivo `build.gradle`, agregue las siguientes modificaciones:
 
-	
+### Implementación de Módulos Requeridos
 
+Para el correcto funcionamiento del SDK, es necesario incluir los siguientes módulos y configuraciones:
 
-<p align="center">
-  <img src="https://github.com/Becomedigital/become_ANDROID_SDK/blob/master/build_gradle.png">
-</p>
-
-
-### Implementación de módulos requeridos
-Cómo primera medida es necesaria la implementacion de los siguientes módulos y configuraciones:
-
-    defaultConfig {
-     minSdkVersion 21
-    }
-		 
-    android {
-      compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-      }
-    }
-    
-     viewBinding {
-        enabled = true
-    }
-
-    implementation fileTree(dir: 'libs', include: ['*.aar'])
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.navigation:navigation-fragment:2.5.3'
-    implementation 'androidx.navigation:navigation-ui:2.5.3'
-    implementation 'com.github.bumptech.glide:glide:4.10.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.2.2'
-    implementation 'com.ramotion.paperonboarding:paper-onboarding:1.1.3'
-    implementation 'com.google.android.material:material:1.3.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    implementation 'com.google.zxing:core:3.3.0'
-    implementation 'com.google.zxing:javase:3.3.0'
-    implementation 'com.mikhaellopez:circularimageview:4.1.0'
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.camera:camera-core:1.2.3")
-    implementation("androidx.camera:camera-camera2:1.2.3")
-    implementation("androidx.camera:camera-view:1.2.3")
-    implementation("androidx.camera:camera-lifecycle:1.2.3")
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+```gradle
+compileSdkVersion 35
   
-### Agregar licencia requerida
+compileOptions {
+    coreLibraryDesugaringEnabled true
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
 
-1. Agregar licencia en los assets del proyecto:
+buildFeatures {
+    viewBinding true
+    compose true  // Habilita Jetpack Compose
+}
+
+composeOptions {
+    kotlinCompilerExtensionVersion = "1.5.14"
+}
+
+implementation 'com.mikhaellopez:circularimageview:4.3.1'
+implementation 'com.google.android.material:material:1.3.0'
+
+// Dependencias de Face Liveness (Amplify UI)
+implementation 'com.amplifyframework.ui:liveness:1.3.0'
+implementation 'com.amplifyframework:aws-auth-cognito:2.26.0'
+implementation 'androidx.compose.material3:material3:1.1.2'
+implementation 'androidx.activity:activity-compose:1.7.2'
+
+// CameraX (Última versión)
+implementation("androidx.camera:camera-core:1.3.0")
+implementation("androidx.camera:camera-camera2:1.3.0")
+implementation("androidx.camera:camera-view:1.3.0")
+implementation("androidx.camera:camera-lifecycle:1.3.0")
+implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+
+// Navegación Jetpack
+implementation 'androidx.navigation:navigation-fragment:2.5.3'
+implementation 'androidx.navigation:navigation-ui:2.5.3'
+
+// Gson para serialización/deserialización JSON
+implementation 'com.google.code.gson:gson:2.10.1'
+
+// Glide para manejo de imágenes
+implementation 'com.github.bumptech.glide:glide:4.10.0'
+
+// Dependencias locales (AAR)
+implementation(name:'capture-core-1.2.0', ext:'aar')
+implementation(name:'capture-ux-1.2.0', ext:'aar')
+implementation(name:'becomedigitalsdk-release', ext:'aar')
+
+// Soporte para Java 8+
+coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+```
+
+### Agregar Licencia Requerida
+
+1. Agregue la licencia en la carpeta `assets` del proyecto:
 
 <p align="center">
   <img src="https://github.com/Becomedigital/become_ANDROID_SDK_ADC/blob/main/assets_key.png">
 </p>
 
- 2. El [`applicationId`](https://developer.android.com/studio/build/application-id?hl=es-419) del proyecto debe coincidir con la licencia asignada al cliente:
+2. Asegúrese de que el [`applicationId`](https://developer.android.com/studio/build/application-id?hl=es-419) coincida con la licencia asignada al cliente.
 
-### Implementación de la SDK Become
-       
- 1. Descargue la dependencias `becomedigitalsdk.aar , capture-core-1.2.0.aar, capture-ux-1.2.0.aar` y agréguela en las dependencias binarias locales de su proyecto.
+## 2. Implementación del SDK Become
 
-<p align="center">
-  <img src="https://github.com/Becomedigital/BecomeDigitalSDKAutDirectPro-Android/blob/main/libs.png">
-</p>
-		 
- 2. Al realizar los pasos anteriores, debe sincronizar su proyecto con gradle.
- 
- ## Inicialización de la SDK
-En el método onCreate () de su clase de aplicación, inicialice Become utilizando el siguiente fragmento de código:
+1. Descargue las dependencias `becomedigitalsdk.aar`, `capture-core-1.2.0.aar` y `capture-ux-1.2.0.aar`, y agréguelas en las dependencias binarias locales del proyecto.
 
-	public class MainActivity extends AppCompatActivity {
-    
-    //Con el fin de manejar las respuestas de inicio de sesión, debe crear un callback utilizando el siguiente fragmento de código
-    private BecomeCallBackManager mCallbackManager = BecomeCallBackManager.createNew ( );
+2. Luego, sincronice su proyecto con Gradle.
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-	    super.onCreate (savedInstanceState);
-	    setContentView (R.layout.activity_main);
+## 3. Inicialización del SDK
 
-        //Parámetros de configuración: El valor de los parámetros debe ser solicitado al contratar el servicio  
-        String clientSecret =  "your client Secret here" ;  
-        String clientId =  "your client ID here" ;  
-        String contractId =  "your contract ID here";
-        String userId = "your user ID here"
-        DocumetType[] documetTypes = {
-                DocumetType.PASSPORT,
-                DocumetType.DNI,
-                DocumetType.LICENSE
-        };
-	
-        BecomeResponseManager.getInstance().startAutentication(MainActivity.this,
+En el método `onCreate()` de su `Activity`, inicialice el SDK con el siguiente código:
+
+```java
+public class MainActivity extends AppCompatActivity {
+    private BecomeCallBackManager mCallbackManager = BecomeCallBackManager.createNew();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Configuración del SDK
+        String clientSecret = "your client Secret here";
+        String clientId = "your client ID here";
+        String contractId = "your contract ID here";
+        String userId = "your user ID here";
+        DocumetType[] documetTypes = {DocumetType.PASSPORT, DocumetType.DNI, DocumetType.LICENSE};
+
+        BecomeResponseManager.getInstance().startAuthentication(
+            MainActivity.this,
             new BDIVConfig(
-                    clientId,
-                    clientSecret,
-                    contractId,
-                    true, // Indica si se debe utilizar la autenticación facial
-                    documetTypes, // Tipos de documentos permitidos
-                    true, // Indica si se debe utilizar el modo de captura de documentos
-                    userId, // Identificador único del usuario
-                    byteArray // Data imagen logo cliente
-            ));
-	  
-	}
+                clientId,
+                clientSecret,
+                contractId,
+                true,
+                documetTypes,
+                true,
+                userId,
+                byteArray
+            )
+        );
+    }
+}
+```
 
-## Posibles Errores
+## 4. Posibles Errores
 
-**1. Error con parámetros vacíos** 
-Los siguientes parámetros son necesarios para la activación de la SDK por lo tanto su valor no debe ser vacío.
- 
-Parámetro | Valor
------------- | -------------
-documetTypes | DocumetType[] 
-clientSecret | "String"
-clientId | "String"
-contractId  | "String"
-userID  | "String"
+### Error por Parámetros Vacíos
+Los siguientes parámetros son obligatorios:
 
+| Parámetro       | Valor            |
+|----------------|-----------------|
+| documetTypes   | DocumetType[]   |
+| clientSecret   | "String"        |
+| clientId       | "String"        |
+| contractId     | "String"        |
+| userID         | "String"        |
 
-Mostrará el siguiente error por consola:
+Si alguno de estos parámetros está vacío, se mostrará el siguiente error en la consola:
 
-    parameters cannot be empty
+```bash
+parameters cannot be empty
+```
 
-## Validación del proceso
-En este apartado encontrará la respuesta a partir de la validación del proceso realizado por la SDK y las estructuras internas que contienen los atributos encargados de capturar la información dada por el usuario:
+## 5. Validación del Proceso
 
-**1. Estructura encargada de la definición del estado  de validación ***exitoso***:**
+### Validación Exitosa
+```java
+@Override
+public void onFinish(final ResponseIV responseIV) {
+    if(responseIV.getResponseStatus() == ResponseIV.ResponseType.ERROR) {
+        // Manejo del error
+    } else {
+        // Proceso exitoso
+    }
+}
+```
 
-	@Override
-	public void onSuccess(final ResponseIV responseIV) {
-	    textResponse.setText(responseIV.toString());
-	}
+### Validación Cancelada por el Usuario
+```java
+@Override  
+public void onCancel() {
+    textResponse.setText("Cancelado por el usuario");  
+}
+```
 
-**2. Estructura encargada de la definición del estado  de validación ***cancelado*** por el usuario:**
+## 6. Implementación del Proceso Completo
 
-	@Override  
-	public void onCancel() { 
-	    textResponse.setText ("Cancelado por el usuario ");  
-	}
-   
-**3. Estructura encargada de la definición del estado  de validación ***error*** , este estado se presenta cuándo ocurren errores generales o de inicialización de parámetros :**
+```java
+public class MainActivity extends AppCompatActivity {
+    private BecomeCallBackManager mCallbackManager = BecomeCallBackManager.createNew();
 
-	 @Override  
-	 public void onError(LoginError pLoginError) {
-	    Log.d ("Error", pLoginError.getMessage ( ));
-	 }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-## Estructura para el retorno de la información
-Los siguientes son los parámetros que permiten el retorno de la información capturada por el sistema.
+        String clientSecret = "your client Secret here";
+        String clientId = "your client ID here";
+        String contractId = "your contract ID here";
+        String userId = "your user ID here";
+        DocumetType[] documetTypes = {DocumetType.PASSPORT, DocumetType.DNI, DocumetType.LICENSE};
 
-		private String urlResult;
-		private String message;
-		private Integer responseStatus;
+        BecomeResponseManager.getInstance().startAuthentication(
+            MainActivity.this,
+            new BDIVConfig(
+                clientId,
+                clientSecret,
+                contractId,
+                true,
+                documetTypes,
+                true,
+                userId,
+                byteArray
+            )
+        );
+    }
+}
+```
 
-Ejemplo de la respuesta:
+## 7. Requisitos
 
-		public void onSuccess(final ResponseIV responseIV) {  
-			textResponse.setText(responseIV.toString());
-		}
+- **Tecnologías Compatibles:**
+  - `targetSdkVersion 35`
+  - `gradle-8.10.2`
 
-## Implementación del proceso
-Esta sección se encarga de proporcionar el fragmento de código para la implementación final del proceso.
-
-    public class MainActivity extends AppCompatActivity {  
-	    private BecomeCallBackManager mCallbackManager = BecomeCallBackManager.createNew ( );  
-	  
-	  @SuppressLint("WrongThread")  
-	  @Override  
-	  protected void onCreate(Bundle savedInstanceState) {  
-		super.onCreate (savedInstanceState);  
-		setContentView (R.layout.activity_main);  
-	  
-		String clientSecret =  "your client Secret here" ;  
-		String clientId =  "your client ID here" ;  
-		String contractId =  "your contract ID here";
-		String userId = "your user ID here"
-		DocumetType[] documetTypes = {
-			DocumetType.PASSPORT,
-			DocumetType.DNI,
-			DocumetType.LICENSE
-		};
-		
-		  
-		BecomeResponseManager.getInstance().startAutentication(MainActivity.this,
-			new BDIVConfig(
-			clientId,
-			clientSecret,
-			contractId,
-			true, // Indica si se debe utilizar la autenticación facial
-			documetTypes, // Tipos de documentos permitidos
-			true, // Indica si se debe utilizar el modo de captura de documentos
-			userId, // Identificador único del usuario
-			byteArray // Data imagen logo cliente
-		));
-    
-		BecomeResponseManager.getInstance ( ).registerCallback (mCallbackManager, new BecomeInterfaseCallback ( ) {  
-		  
-		      @Override  	  
-		      public void onSuccess(final ResponseIV responseIV) {  
-			  // Respuesta SDK
-		      }  
-			  
-		      @Override  
-		      public void onCancel() {  
-			  // Respuesta cancelado por usuario
-		      }  
-			  
-		      @Override  
-		      public void onError(LoginError pLoginError) {  
-			  // Respuesta error en el proceso
-		      }        
-		});  	  
-        }  
-      }
-      
-
-## Requerimientos
-
-* **Tecnologias**
-        targetSdkVersion 34
-	gradle-8.2
